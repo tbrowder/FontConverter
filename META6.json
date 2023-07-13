@@ -1,0 +1,25 @@
+{
+  "auth": "zef:tbrowder",
+  "authors": [
+    "Tom Browder"
+  ],
+  "build-depends": [
+  ],
+  "depends": [
+  ],
+  "description": "Enables conversion between TrueType and PostScript Type 1 fonts",
+  "license": "Artistic-2.0",
+  "name": "FontConverter",
+  "perl": "6.d",
+  "provides": {
+    "FontConverter": "lib/FontConverter.rakumod"
+  },
+  "resources": [
+  ],
+  "source-url": "",
+  "tags": [
+  ],
+  "test-depends": [
+  ],
+  "version": "0.0.1"
+}
