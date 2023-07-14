@@ -16,6 +16,21 @@ use FontConverter;
 
 B<FontConverter> is ...
 
+    # for the docs =========
+    Requires the following Linux system programs: 
+
+    To convert TrueType to PostScript Type 1
+      + ttf2ufm - converts X.ttf to X.t1a and X.afm
+    
+    To convert PostScript Type 1 to TrueType
+      + fontforge - converts X.pfb to X.ttf
+
+    Miscellaneous system programs:
+      + pfbtopfa - .pfb to .pfa 
+      + pdffonts - info on fonts in a pdf doc
+      + pf2afm   - produces an afm file from a PostScript font
+      + printafm - shows metrics from PostScript
+
 =head1 AUTHOR
 
 Tom Browder <tbrowder@acm.org>
