@@ -45,12 +45,15 @@ Tom Browder <tbrowder@acm.org>
 ADDITIONAL LICENSE
 ==================
 
-The included Python program, c<ttf-converter>, has its own license which is embedded in its contents at the top of the file. The first few lines are repeated here:
+The included Python program, `ttf-converter`, has its own license which is embedded in its contents at the top of the file. The first few lines are repeated here:
 
-verbatim
-========
-
-# Copyright (C) 20202 Antonio Larrosa <alarrosa@suse.com> # This file is part of ttf-converter # <https://github.com/antlarr-suse/ttf-converter>. # # ttf-converter is free software: you can redistribute it and/or modify # it under the terms of the GNU General Public License as published by # the Free Software Foundation, either version 3 of the License.
+    # Copyright (C) 20202 Antonio Larrosa <alarrosa@suse.com>
+    # This file is part of ttf-converter
+    # <https://github.com/antlarr-suse/ttf-converter>.
+    #
+    # ttf-converter is free software: you can redistribute it and/or modify
+    # it under the terms of the GNU General Public License as published by
+    # the Free Software Foundation, either version 3 of the License.
 
 COPYRIGHT AND LICENSE
 =====================

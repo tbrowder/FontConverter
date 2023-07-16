@@ -50,7 +50,7 @@ The included Python program, C<ttf-converter>, has its own license
 which is embedded in its contents at the top of the file. The 
 first few lines are repeated here:
 
-=begin verbatim
+=begin code
 # Copyright (C) 20202 Antonio Larrosa <alarrosa@suse.com>
 # This file is part of ttf-converter
 # <https://github.com/antlarr-suse/ttf-converter>.
@@ -58,7 +58,7 @@ first few lines are repeated here:
 # ttf-converter is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License.
-=end verbatim
+=end code
 
 =head1 COPYRIGHT AND LICENSE
 
