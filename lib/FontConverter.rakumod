@@ -2,10 +2,9 @@ use Proc::Easier;
 
 unit class FontConverter;
 
-
 my @args = @*ARGS;
-my $o    = FontConvert.new;
-$o.run-program @args;
+my $o    = FontConverter.new;
+$o.run-program: @args;
 
 # If more than one arg is entered, 
 # one is checked for a "=d" for
@@ -13,10 +12,12 @@ $o.run-program @args;
 # ignored.
 method run-program(@args) is export {
     my @a     = @args;
-    my $debug = 0:
+    my $debug = 0;
     my $font;
-    my $a = @a.shift;
-    if $a ~~ /'=debug=/ {
+    my $a = @a.shift // '';
+    return if not $a;
+
+    if $a ~~ /'=debug='/ {
         ++$debug;
         $a = @a.shift;
         $font = $a;
@@ -24,13 +25,13 @@ method run-program(@args) is export {
     }
     
     if @a.elems {
-        $a = #a.shift;
+        $a = @a.shift;
         # the first must have been the font or debug
         if $debug {
             $font = $a;
         }
         elsif $font.defined {
-            if $a ~~ /'=debug=/ {
+            if $a ~~ /'=debug='/ {
                 ++$debug;
             }
         }
@@ -73,9 +74,18 @@ method run-program(@args) is export {
 }
 
 sub convert-pfb($font) {
+    # use ttf-convert (a Python program)
+    # to create a .ttf file from a .pba file
+    my $tloc1 = %?RESOURCES<bin/ttf-converter>.absolute.IO.r // False;
+    my $tloc2 = "../../bin/ttf-converter".IO.r // False;
+    my $tfil = $tloc1 ?? $tloc1 
+                      !! $tloc2 ?? $tloc2 
+                                !! die("FATAL: Unable to open 'ttf-converter'");
 }
 
 sub convert-ttf($font) {
+    # use ttf2ufm to create a .pba file 
+    # from a .ttf file
 }
 
 
