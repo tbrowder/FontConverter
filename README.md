@@ -1,4 +1,4 @@
-[![Actions Status](https://github.com/tbrowder/FontConverter/actions/workflows/linux.yml/badge.svg)](https://github.com/tbrowder/FontConverter/actions) [![Actions Status](https://github.com/tbrowder/FontConverter/actions/workflows/macos.yml/badge.svg)](https://github.com/tbrowder/FontConverter/actions) [![Actions Status](https://github.com/tbrowder/FontConverter/actions/workflows/windows.yml/badge.svg)](https://github.com/tbrowder/FontConverter/actions)
+[![Actions Status](https://github.com/tbrowder/FontConverter/actions/workflows/linux.yml/badge.svg)](https://github.com/tbrowder/FontConverter/actions)
 
 NAME
 ====

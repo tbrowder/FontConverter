@@ -24,9 +24,7 @@ jobs:
           raku-version: ${{ matrix.raku-version }}
       - name: Install system reqs
         run: |
-            sudo apt-get install -y fontforge
-            sudo apt-get install -y python3-fontforge
-            sudo apt-get install -y ttf2ufm
+            sudo apt-get install -y fontforge python3-fontforge ttf2ufm
       - name: Install Dependencies
         run: zef install --/test --test-depends --deps-only .
       - name: Install App::Prove6
