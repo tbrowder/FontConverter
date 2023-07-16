@@ -15,9 +15,9 @@ use FontConverter;
 DESCRIPTION
 ===========
 
-**FontConverter** provides tools to convert PostScript Type 1 binary font files to TruType. It requires the following system programs to be installed:
+**FontConverter** provides tools to convert PostScript Type 1 binary font files to TrueType as well as conversion from TrueType to PostScript Type 1. It requires the following system programs to be installed:
 
-  * fontforge
+  * fontforge (and its Python components)
 
     To convert PostScript Type 1 to TrueType (X.pfb to X.ttf).
 

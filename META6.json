@@ -6,6 +6,7 @@
   "build-depends": [
   ],
   "depends": [
+    "Proc::Easier"
   ],
   "description": "Enables conversion between TrueType and PostScript Type 1 fonts",
   "license": "Artistic-2.0",
