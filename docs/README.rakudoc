@@ -46,7 +46,7 @@ Tom Browder <tbrowder@acm.org>
 
 =head1 ADDITIONAL LICENSE
 
-The included Python program, c<ttf-converter>, has its own license
+The included Python program, C<ttf-converter>, has its own license
 which is embedded in its contents at the top of the file. The 
 first few lines are repeated here:
 
