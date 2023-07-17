@@ -6,6 +6,7 @@
   "build-depends": [
   ],
   "depends": [
+    "File::Find",
     "Proc::Easier"
   ],
   "description": "Enables conversion between TrueType and PostScript Type 1 fonts",

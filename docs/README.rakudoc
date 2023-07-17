@@ -2,20 +2,19 @@
 
 =head1 NAME
 
-B<FontConverter> - Enables conversion between TrueType and PostScript Type 1 fonts
+B<FontConverter> - Enables conversion between TrueType, OpenType, and PostScript Type 1 fonts
 
 =head1 SYNOPSIS
 
 =begin code :lang<raku>
-
 use FontConverter;
-
+fc-convert-font Times-Roman.pfb # OUTPUT: Times-Roman.ttf
 =end code
 
 =head1 DESCRIPTION
 
 B<FontConverter> provides tools to convert PostScript Type 1 binary
-font files to TrueType as well as conversion from TrueType to PostScript Type 1. 
+font files to TrueType as well as conversion from TrueType or OpenType to PostScript Type 1. 
 It requires the following system programs to be installed:
 
 =begin item
@@ -28,8 +27,8 @@ To convert PostScript Type 1 to TrueType
 =begin item
 ttf2ufm
 
-To convert TrueType to PostScript Type 1
-(X.ttf to X.pfb, X.pfa, and X.afm).
+To convert TrueType or OpenType to PostScript Type 1
+(X.ttf or X.otf to X.pfb, X.pfa, and X.afm).
 =end item
 
 Other font-related system programs:
@@ -38,15 +37,28 @@ Other font-related system programs:
 =item pdffonts - info on fonts in a pdf doc
 =item pf2afm   - produces an afm file from a PostScript font
 =item printafm - shows metrics from PostScript
-=item showttf  - provides details of a TrueType font
+=item showttf  - provides details of a TrueType or OpenType font
+
+=head1 Motivation
+
+The author has been creating Raku modules to convert old PostScript-generating
+programs (whose products were then converted to PDF)
+to direct PDF-generation. In the process, he wants to convert old
+PostScript Type 1 fonts he bought for special projects to TrueType.
 
 =head1 AUTHOR
 
 Tom Browder <tbrowder@acm.org>
 
+=head1 COPYRIGHT AND LICENSE
+
+© 2023 Tom Browder
+
+This library is free software; you may redistribute it or modify it under the Artistic License 2.0.
+
 =head1 ADDITIONAL LICENSE
 
-The included Python program, C<ttf-converter>, has its own license
+The included Python3 program, C<ttf-converter>, has its own license
 which is embedded in its contents at the top of the file. The 
 first few lines are repeated here:
 
@@ -59,11 +71,5 @@ first few lines are repeated here:
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License.
 =end code
-
-=head1 COPYRIGHT AND LICENSE
-
-© 2023 Tom Browder
-
-This library is free software; you may redistribute it or modify it under the Artistic License 2.0.
 
 =end pod
