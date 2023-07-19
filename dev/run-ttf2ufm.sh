@@ -1,7 +1,6 @@
 #!/bin/bash
 
-#FFILE=fonts/DejaVuSerif.ttf
-FFILE=N.ttf
+FFILE=DejaVuSerif.ttf
 PROG=ttf2ufm
 
 if [[ -z "$1" ]]; then
@@ -12,7 +11,8 @@ if [[ -z "$1" ]]; then
 fi
 
 # options:
-# --pfb  # produce a .pfb file
+# --pfb  # produce a .pfb file instead of a t1a
+#       
 #   -G 
 #      u # don't produce the .ufm file (saves 45Mb)
 #      f # don't produce the .t1a file (saves 171Kb)

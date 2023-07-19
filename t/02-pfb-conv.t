@@ -1,5 +1,6 @@
 use Test;
 
+
 use Proc::Easier;
 use FontConverter;
 
@@ -11,7 +12,7 @@ lives-ok {
 
 $pfb = "t/fonts/cmbsy10.pfb";
 #lives-ok {
-    $args = "bin/ff-convert-font $pfb";
+    $args = "bin/ff-convert-font $pfb, :output-dir('./t')";
     $res  = cmd $args;
     #note $res.out;
     #note $res.err;
