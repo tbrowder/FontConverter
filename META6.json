@@ -6,6 +6,7 @@
   "build-depends": [
   ],
   "depends": [
+    "File::Temp",
     "File::Find",
     "Proc::Easier"
   ],
@@ -20,6 +21,7 @@
   ],
   "source-url": "https://github.com/tbrowder/FontConverter.git",
   "tags": [
+    "font convert pfb ttf otf postscript pdf type1"
   ],
   "test-depends": [
   ],

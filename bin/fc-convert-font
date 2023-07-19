@@ -1,6 +1,6 @@
 #!/bin/env raku
-
 use Proc::Easier;
+use lib <lib>;
 use FontConverter;
 
 if not @*ARGS.elems {
@@ -29,6 +29,6 @@ if not @*ARGS.elems {
 my @args = @*ARGS;
 exit if not @args.elems;
 
-my $o    = FontConverter.new;
+my $o = FontConverter.new;
 $o.run-program: @args;
 

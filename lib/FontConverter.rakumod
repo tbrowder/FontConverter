@@ -1,7 +1,7 @@
 use Proc::Easier;
 use File::Find;
 
-unit class FontConverter;
+unit class FontConverter is export;
 
 # If more than one font arg is entered, 
 # they are all checked. Those with suffixes 
@@ -21,11 +21,11 @@ method run-program(@args) is export {
     for @args {
         my $bnam;
         when /'in-dir=' (\S+) $/ {
-            $idir = $_;
+            $idir = ~$0;
             die "FATAL: Input arg in-dir='$idir' is NOT a directory." unless $idir.IO.d;
         }
         when /'out-dir=' (\S+) $/ {
-            $odir = $_;
+            $odir = ~$0;
             die "FATAL: Input arg out-dir='$odir' is NOT a directory." unless $odir.IO.d;
         }
         when /'.pfb' $/ {
@@ -73,22 +73,21 @@ method run-program(@args) is export {
     my (@ttf, @pfb);
     if %pfb.elems {
         # handle the conversion
-        @ttf = convert-pfb %pfb.values, :$debug;
+        @ttf = convert-pfb %pfb.values, :$odir, :$debug;
     }
     if %ttf.elems {
         # handle the conversion
-        @pfb = convert-ttf %ttf.values, :$debug;
+        @pfb = convert-ttf %ttf.values, :$odir, :$debug;
     }
 
     if @pfb {
     }
     if @ttf {
     }
-
 }
 
-sub convert-pfb(@fonts, :$out-dir!, :$debug) {
-    note "NOTE: this dir is: '{$out-dir.IO.absolute}'" if $debug;
+sub convert-pfb(@fonts, :$odir!, :$debug) {
+    note "NOTE: this dir is: '{$odir.IO.absolute}'" if $debug;
     # use ttf-convert (a Python program)
     # to create a .ttf file from a .pba file
     my $eloc1 = %?RESOURCES<bin/ttf-converter>.IO.absolute;
@@ -98,14 +97,15 @@ sub convert-pfb(@fonts, :$out-dir!, :$debug) {
                                            !! die("FATAL: Unable to open 'ttf-converter'");
     note "DEBUG: Using pfb conversion program '$efil'" if $debug;
     # execute with one or more files
-    my $args = @fonts.join(" ");
+    my $output-dir = "--output-dir $odir";
+    my $args = $output-dir ~ " " ~ @fonts.join(" ");
     my $exe  = "$efil $args";
     my $res  = cmd $exe;
     note $res.raku;
 }
 
-sub convert-ttf(@fonts, :$out-dir!, :$debug) {
-    note "NOTE: this dir is: '{$out-dir.IO.absolute}'" if $debug;
+sub convert-ttf(@fonts, :$odir!, :$debug) {
+    note "NOTE: this dir is: '{$odir.IO.absolute}'" if $debug;
     # use ttf2ufm to create a .pba file 
     # from a .ttf or .otf file
     my $eprog = "ttf2ufm";
