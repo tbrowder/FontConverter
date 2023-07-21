@@ -50,12 +50,16 @@ Other font-related system programs:
 
 =head1 Motivation
 
+=head2 Convert Type 1 to TrueType 
+
 The author has been creating Raku modules to convert his old (but cool) PostScript-generating
 programs (whose products were then converted to PDF with Ghostscript's 'ps2pdf')
 to direct PDF-generation using David Warring's Raku PDF modules. In the process, 
 he wanted to convert old PostScript Type 1 fonts he bought for special projects to TrueType.
 Hence this module, which brings together the necessary tools into an easy-to-use, double-duty
 module and encourages use of Unicode in multi-language printed products.
+
+=head2 Convert TrueType or OpenType to Type 1 
 
 For completeness, the module also provides the opposite conversion for the
 rare case of wanting a PostScript version of a modern font for direct inclusion

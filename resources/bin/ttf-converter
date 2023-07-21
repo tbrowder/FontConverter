@@ -246,7 +246,9 @@ def fix_glyph_data(font, shift_unicode_values, replace_unicode_values):
             print(f'No unicode character name for {glyph.unicode}')
 
 
-def convert_font(input_filename, output_filename=None, output_dir='.',
+def convert_font(input_filename, 
+                 output_filename=None, 
+                 output_dir='.',
                  force_monospaced=False,
                  force_family=None, force_subfamily=None):
     font = fontforge.open(input_filename)
@@ -256,6 +258,7 @@ def convert_font(input_filename, output_filename=None, output_dir='.',
 
     if not output_filename:
         output_filename = font.fontname + '.ttf'
+        #output_filename = font.fontname + '.otf'
 
     if output_dir:
         output_filename = os.path.join(output_dir, output_filename)

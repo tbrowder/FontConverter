@@ -8,7 +8,8 @@ unit class FontConverter is export;
 # of .ttf or .otf are sent to 'ttf-converter'
 # and those with .pfa are to 'ttf2ufm'.
 method run-program(@args) is export {
-    my $debug;
+    my $debug  = 0;;
+    my $to-otf = 0;
     my %pfb;
     my %ttf;   # includes .otf
     my %other;
@@ -20,6 +21,9 @@ method run-program(@args) is export {
     # collect fonts in args
     for @args {
         my $bnam;
+        when /'to-otf'/ {
+            ++$to-otf;
+        }
         when /'in-dir=' (\S+) $/ {
             $idir = ~$0;
             die "FATAL: Input arg in-dir='$idir' is NOT a directory." unless $idir.IO.d;
@@ -73,7 +77,7 @@ method run-program(@args) is export {
     my (@ttf, @pfb);
     if %pfb.elems {
         # handle the conversion
-        @ttf = convert-pfb %pfb.values, :$odir, :$debug;
+        @ttf = convert-pfb %pfb.values, :$odir, :$to-otf, :$debug;
     }
     if %ttf.elems {
         # handle the conversion
@@ -86,7 +90,7 @@ method run-program(@args) is export {
     }
 }
 
-sub convert-pfb(@fonts, :$odir!, :$debug) {
+sub convert-pfb(@fonts, :$odir!, :$to-otf = 0, :$debug --> List) {
     note "NOTE: this dir is: '{$odir.IO.absolute}'" if $debug;
     # use ttf-convert (a Python program)
     # to create a .ttf file from a .pba file
@@ -98,19 +102,39 @@ sub convert-pfb(@fonts, :$odir!, :$debug) {
     note "DEBUG: Using pfb conversion program '$efil'" if $debug;
     # execute with one or more files
     my $output-dir = "--output-dir $odir";
-    my $args = $output-dir ~ " " ~ @fonts.join(" ");
-    my $exe  = "$efil $args";
-    my $res  = cmd $exe;
-    note $res.raku;
+    my @ofils;
+    if not $to-otf {
+        my $args = $output-dir ~ " " ~ @fonts.join(" ");
+        my $exe  = "$efil $args";
+        my $res  = cmd $exe;
+        @ofils = find :dir($odir), :type<file>, :name(/'.ttf'$/);
+    }
+    else {
+        # must do it the hard way for mow: one exe per file
+        for @fonts -> $font {
+            my $fnam = $font.IO.basename;
+            $fnam ~~ s/.pfb$/.otf/;
+            my $args = "$output-dir $font $fnam";
+            my $exe  = "$efil $args";
+            my $res  = cmd $exe;
+            my $ofil = "$odir/$fnam";
+            @ofils.push: $ofil;
+        }
+
+    }
+    @ofils
 }
 
-sub convert-ttf(@fonts, :$odir!, :$debug) {
+sub convert-ttf(@fonts, :$odir!, :$debug --> List) {
     note "NOTE: this dir is: '{$odir.IO.absolute}'" if $debug;
     # use ttf2ufm to create a .pba file 
     # from a .ttf or .otf file
     my $eprog = "ttf2ufm";
     note "DEBUG: Using ttf/otf pfb conversion program '$eprog'" if $debug;
     # each file has to be handled separately with two executions
+
+    # set $*OUT to $odir
+    $*OUT = $odir;
     for @fonts -> $font {
         my $args1 = "--pfb -G u $font";
         my $exe1  = "$eprog $args1";
@@ -118,8 +142,6 @@ sub convert-ttf(@fonts, :$odir!, :$debug) {
         my $args2 = "-G u $font";
         my $exe2  = "$eprog $args2";
         my $res2  = cmd $exe2;
-        note $res1.raku;
-        note $res2.raku;
     }
 }
 
