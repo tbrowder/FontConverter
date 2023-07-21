@@ -11,7 +11,8 @@ method run-program(@args) is export {
     my $debug  = 0;;
     my $to-otf = 0;
     my %pfb;
-    my %ttf;   # includes .otf
+    my %ttf;
+    my %otf;
     my %other;
 
     # handle input and output directories
@@ -59,34 +60,51 @@ method run-program(@args) is export {
                 $bnam = $_.IO.basename;
                 %pfb{$bnam} = $_;
             }
-            when /'.' [ttf||otf] $/ {
+            when /'.ttf' $/ {
                 $bnam = $_.IO.basename;
                 %ttf{$bnam} = $_;
+            }
+            when /'.otf' $/ {
+                $bnam = $_.IO.basename;
+                %otf{$bnam} = $_;
             }
         }
     }
 
     # Check input font files results
-    if not (%pfb.elems or %ttf.elems) {
+    if not (%pfb.elems or %ttf.elems or %otf.elems) {
         say "ERROR: No .pfb, .ttf, or .otf files found via the input args.";
         say "       Exiting.";
         exit;
     }
 
     # Finally, do the conversions
-    my (@ttf, @pfb);
+    my (@ttf, @pfb, @otf);
     if %pfb.elems {
         # handle the conversion
-        @ttf = convert-pfb %pfb.values, :$odir, :$to-otf, :$debug;
+        if $to-otf {
+            @otf = convert-pfb %pfb.values, :$odir, :$to-otf, :$debug;
+        }
+        else {
+            @ttf = convert-pfb %pfb.values, :$odir, :$debug;
+        }
     }
     if %ttf.elems {
         # handle the conversion
-        @pfb = convert-ttf %ttf.values, :$odir, :$debug;
+        my @f = convert-ttf %ttf.values, :$odir, :$debug;
+        @pfb.push: |@f;
+    }
+    if %otf.elems {
+        # handle the conversion
+        my @f = convert-ttf %otf.values, :$odir, :$debug;
+        @pfb.push: |@f;
     }
 
     if @pfb {
     }
     if @ttf {
+    }
+    if @otf {
     }
 }
 

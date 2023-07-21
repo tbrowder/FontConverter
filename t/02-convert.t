@@ -93,7 +93,6 @@ lives-ok {
 dir-stats($tdir, :%afm, :%t1a, :%pfb, :%ttf, :%otf);
 # expecting ?
 is %ttf.elems, 6;
+is %pfb.elems, 4;
 
-done-testing;
-=finish
 done-testing;
