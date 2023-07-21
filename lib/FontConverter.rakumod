@@ -8,7 +8,8 @@ unit class FontConverter is export;
 # of .ttf or .otf are sent to 'ttf-converter'
 # and those with .pfa are to 'ttf2ufm'.
 method run-program(@args) is export {
-    my $debug  = 0;;
+    my $show   = 0; # an undocumented debug option
+    my $debug  = 0;
     my $to-otf = 0;
     my %pfb;
     my %ttf;
@@ -41,18 +42,46 @@ method run-program(@args) is export {
             $bnam = $_.IO.basename;
             %ttf{$bnam} = $_;
         }
-        when /:i debug/ {
+        when /:i debug $/ {
             ++$debug;
+        }
+        when /:i show $/ {
+            ++$show;
         }
         default {
             %other{$_} = 1;
         }
     }
 
+    if $show {
+        # for debugging
+        my $cdir = $*CWD;
+        if not $cdir.contains('dev') {
+            note "FATAL: Dir '$cdir' is not the 'dev' dir";
+            note "Debug exit";
+            exit;
+        }
+        my $dir1 = "$cdir/../t/fonts";
+        my $dir2 = "$cdir/../t/fonts/idir";
+        my $dir3 = "$cdir/../t/out";
+        my @f1 = find :dir($dir1), :type<file>, :recursive(False);
+        my @f2 = find :dir($dir2), :type<file>, :recursive(False);
+        my @f3 = find :dir($dir3), :type<file>, :recursive(False);
+        note "Files in $dir1:";
+        note "  $_" for @f1.sort;
+        note "Files in $dir2:";
+        note "  $_" for @f2.sort;
+        note "Files in $dir3:";
+        note "  $_" for @f3.sort;
+        note "Debug exit";
+        exit;
+
+    }
+
     if $idir.defined {
         die "FATAL: Input arg in-dir='$idir' is NOT a directory." unless $idir.IO.d;
         # collect files from the input directory
-        my @fils = find :dir($idir), :type<file>, :keep-going(True), :name(/'.' [pfb||otf||ttf] $/);
+        my @fils = find :dir($idir), :type<file>, :recursive(True), :name(/'.' [pfb||otf||ttf] $/);
         # add them to the appropriate hash
         for @fils {
             my $bnam;
