@@ -6,7 +6,7 @@
   "build-depends": [
   ],
   "depends": [
-    "File::LibMagic",
+    "File::file",
     "File::Temp",
     "File::Find",
     "Proc::Easier"

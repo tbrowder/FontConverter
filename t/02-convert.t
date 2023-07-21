@@ -35,6 +35,7 @@ sub clean-stats {
     %ttf = [];
     %otf = [];
 }
+
 sub clean-outdir {
     my @f = find :dir("t/out"), :type<file>; 
     $_.unlink for @f
@@ -66,7 +67,7 @@ else {
 }
 
 my ($exe, $args, $res, $pfb, @f, @fo);
-$exe = "bin/fc-convert-font";
+$exe = "./bin/fc-convert-font";
 
 lives-ok {
     $args = $exe;

@@ -1,5 +1,6 @@
 use Proc::Easier;
 use File::Find;
+use File::Temp;
 
 unit class FontConverter is export;
 
@@ -11,18 +12,22 @@ method run-program(@args) is export {
     my $show   = 0; # an undocumented debug option
     my $debug  = 0;
     my $to-otf = 0;
+    my $to-pfb = 1;
     my %pfb;
     my %ttf;
     my %otf;
     my %other;
 
     # handle input and output directories
-    my $idir; # no default
-    my $odir = $*CWD;
+    my $idir;         # no default
+    my $odir = $*CWD; # default
 
     # collect fonts in args
     for @args {
         my $bnam;
+        when /'to-pfb'/ {
+            ++$to-pfb;
+        }
         when /'to-otf'/ {
             ++$to-otf;
         }
@@ -38,9 +43,13 @@ method run-program(@args) is export {
             $bnam = $_.IO.basename;
             %pfb{$bnam} = $_;
         }
-        when /'.' [ttf||otf] $/ {
+        when /'.ttf' $/ {
             $bnam = $_.IO.basename;
             %ttf{$bnam} = $_;
+        }
+        when /'.otf' $/ {
+            $bnam = $_.IO.basename;
+            %otf{$bnam} = $_;
         }
         when /:i debug $/ {
             ++$debug;
@@ -109,7 +118,7 @@ method run-program(@args) is export {
 
     # Finally, do the conversions
     my (@ttf, @pfb, @otf);
-    if %pfb.elems {
+    if %pfb.elems and $to-pfb {
         # handle the conversion
         if $to-otf {
             @otf = convert-pfb %pfb.values, :$odir, :$to-otf, :$debug;
@@ -129,18 +138,23 @@ method run-program(@args) is export {
         @pfb.push: |@f;
     }
 
+    my @ofils;
     if @pfb {
+        @ofils.push: |@pfb;
     }
     if @ttf {
+        @ofils.push: |@ttf;
     }
     if @otf {
+        @ofils.push: |@otf;
     }
+    @ofils.sort;
 }
 
 sub convert-pfb(@fonts, :$odir!, :$to-otf = 0, :$debug --> List) {
     note "NOTE: this dir is: '{$odir.IO.absolute}'" if $debug;
     # use ttf-convert (a Python program)
-    # to create a .ttf file from a .pba file
+    # to create a .ttf file from a .pfb file
     my $eloc1 = %?RESOURCES<bin/ttf-converter>.IO.absolute;
     my $eloc2 = "bin/ttf-converter".IO.absolute;
     my $efil  = $eloc1.IO.r ?? $eloc1 
@@ -180,8 +194,9 @@ sub convert-ttf(@fonts, :$odir!, :$debug --> List) {
     note "DEBUG: Using ttf/otf pfb conversion program '$eprog'" if $debug;
     # each file has to be handled separately with two executions
 
-    # set $*OUT to $odir
-    $*OUT = $odir;
+    # set $*OUT to a tempdir
+    my $tdir = tempdir;
+    $*OUT = $tdir;
     for @fonts -> $font {
         my $args1 = "--pfb -G u $font";
         my $exe1  = "$eprog $args1";
@@ -190,6 +205,31 @@ sub convert-ttf(@fonts, :$odir!, :$debug --> List) {
         my $exe2  = "$eprog $args2";
         my $res2  = cmd $exe2;
     }
+    # copy to outdir?
+    my @f  = find :dir($tdir), :type<file>;
+    my %f;
+    for @f -> $f {
+        my $bnam = $f.basename;
+        %f{$bnam} = $f;
+    }
+
+    my @f2 = find :dir($tdir), :type<file>;
+    my %f2;
+    for @f2 -> $f {
+        my $bnam = $f.basename;
+        %f2{$bnam} = $f;
+    }
+    my @olist;
+    for %f.keys -> $f {
+        if %f2{$f}:exists {
+            note "NOTE: generated file '$2' also found in dir '$odir'";
+        }
+        else {
+            copy %f{$f}, $odir;
+            @olist.push: @olist;
+        }
+    }
+    @olist
 }
 
 

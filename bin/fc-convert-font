@@ -14,6 +14,9 @@ if not @*ARGS.elems {
       X.otf => X.t1a and X.afm
 
     Options:
+      in-type=T - Where T is one of 'pfb', 'ttf' (or 'otf')
+                  (default: 'pfb').
+
       in-dir=D  - Where D is a directory to search for font files.
 
       out-dir=D - Where D is a directory to put output products
