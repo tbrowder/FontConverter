@@ -27,11 +27,11 @@ method run-program(@args) is export {
             ++$to-otf;
         }
         when /'in-dir=' (\S+) $/ {
-            $idir = ~$0;
+            $idir = ~$0.IO.absolute;
             die "FATAL: Input arg in-dir='$idir' is NOT a directory." unless $idir.IO.d;
         }
         when /'out-dir=' (\S+) $/ {
-            $odir = ~$0;
+            $odir = ~$0.IO.absolute;
             die "FATAL: Input arg out-dir='$odir' is NOT a directory." unless $odir.IO.d;
         }
         when /'.pfb' $/ {
