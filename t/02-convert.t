@@ -78,7 +78,7 @@ lives-ok {
 clean-outdir;
 clean-stats;
 lives-ok {
-    $pfb  = "t/fonts/cmbsy10.pfb";
+    $pfb  = "t/fonts/CMBSY10.pfb";
     $args = "$exe $pfb out-dir=$tdir";
     $res  = cmd $args;
 }, "execute, one pfb in, one ttf expected";

@@ -13,6 +13,7 @@ method run-program(@args) is export {
     my $debug  = 0;
     my $to-otf = 0;
     my $to-pfb = 1;
+    my $itype  = 'pfb';
     my %pfb;
     my %ttf;
     my %otf;
@@ -30,6 +31,12 @@ method run-program(@args) is export {
         }
         when /'to-otf'/ {
             ++$to-otf;
+        }
+        when /'in-type=' (\S+) $/ {
+            $itype = ~$0;
+            unless $itype ~~ /:i [pfb||ttf||otf] $/ {
+                die "FATAL: Input arg in-type='$itype' is NOT a known type.";
+            }
         }
         when /'in-dir=' (\S+) $/ {
             $idir = ~$0.IO.absolute;
