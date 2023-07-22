@@ -56,7 +56,7 @@ if $ttf.defined {
 elsif $otf.defined {
     my $bnam = $otf.IO.basename;
     $bnam ~~ s/'.otf' $//;
-    my $args = "$otf $bnam";
+    my $args = "$otf $odir/$bnam";
     my $res  = cmd "$exe -b -G u -G a $args";
 }
 elsif $clean {
