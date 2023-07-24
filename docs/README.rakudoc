@@ -14,7 +14,7 @@ fc-convert-font Times-Roman.pfb # OUTPUT: «Times-Roman.ttf␤»
 =head1 DESCRIPTION
 
 B<FontConverter> provides tools to convert PostScript Type 1 binary
-font files to TrueType as well as conversion from TrueType or 
+font files to TrueType or OpenType as well as conversion from TrueType or 
 OpenType to PostScript Type 1. It requires the following system 
 programs to be installed:
 
@@ -22,7 +22,7 @@ programs to be installed:
 fontforge (and its Python3 components, if any)
 
 To convert PostScript Type 1 to TrueType
-(X.pfb to X.ttf).
+(X.pfb to X.ttf or X.otf).
 =end item
 
 Note the conversion from PostScript to True- or OpenType requires a Python3
@@ -37,23 +37,37 @@ Linux distribution).
 ttf2ufm
 
 To convert TrueType or OpenType to PostScript Type 1
-(X.ttf or X.otf to X.pfb, X.pfa, and X.afm).
+(X.ttf or X.otf to X.pfb, X.pfa [same as X.t1a] , and X.afm).
 =end item
 
 Other font-related system programs:
 
-=item pfbtopfa - converts .pfb to .pfa 
 =item pdffonts - information on fonts in a PDF document
-=item pf2afm   - produces an AFM file from a PostScript font
 =item printafm - shows metrics from a PostScript font
 =item showttf  - provides details of a TrueType or OpenType font
+
+=head1 Cautions and limitations
+
+Font file names may not always be named exactly after the actual font being described
+internally and, consequently, the resulting filename may not bear any semblance to
+the input filename.  If there is any doubt, use one of the system tools (C<showttf> or C<printafm>)
+to investigate further. 
+
+Eventually
+this module will be able to notify you of any difficulties, but, until then,
+it should not let you convert files B<into> the users's current directory; instead,
+you must always enter the C<to-dir=D> option to name the output directory (which must
+exist and cannot be the same as the input directory). 
+
+It is also recommended that the output directory be empty before starting font
+conversions.
 
 =head1 Motivation
 
 =head2 Convert Type 1 to TrueType 
 
 The author has been creating Raku modules to convert his old (but cool) PostScript-generating
-programs (whose products were then converted to PDF with Ghostscript's 'ps2pdf')
+programs 
 to direct PDF-generation using David Warring's Raku PDF modules. In the process, 
 he wanted to convert old PostScript Type 1 fonts he bought for special projects to TrueType.
 Hence this module, which brings together the necessary tools into an easy-to-use, double-duty
