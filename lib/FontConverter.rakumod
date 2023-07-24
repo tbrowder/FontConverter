@@ -4,11 +4,14 @@ use File::Temp;
 
 unit class FontConverter is export;
 
+submethod TWEAK {
+}
+
 # If more than one font arg is entered, 
 # they are all checked. Those with suffixes 
 # of .ttf or .otf are sent to 'ttf-converter'
 # and those with .pfa are to 'ttf2ufm'.
-method run-program(@args) is export {
+method run-program(@args) {
     my $show   = 0; # an undocumented debug option
     my $debug  = 0;
     my $to-otf = 0;
@@ -20,24 +23,25 @@ method run-program(@args) is export {
     my %other;
 
     # handle input and output directories
-    my $idir;         # no default
-    my $odir = $*CWD; # default
+    my $cdir = $*CWD.IO.absolute; # default
+    my $idir;                     # no default
+    my $odir = $cdir;             # default, but will throw unless the user picks another
+                                  # that is NOT the $idir or the $cdir
 
-    # collect fonts in args
+    # collect any fonts in args
     for @args {
         my $bnam;
-        when /'to-pfb'/ {
-            ++$to-pfb;
-        }
         when /'to-otf'/ {
             ++$to-otf;
         }
+        =begin comment
         when /'in-type=' (\S+) $/ {
             $itype = ~$0;
             unless $itype ~~ /:i [pfb||ttf||otf] $/ {
                 die "FATAL: Input arg in-type='$itype' is NOT a known type.";
             }
         }
+        =end comment
         when /'in-dir=' (\S+) $/ {
             $idir = ~$0.IO.absolute;
             die "FATAL: Input arg in-dir='$idir' is NOT a directory." unless $idir.IO.d;
@@ -45,6 +49,7 @@ method run-program(@args) is export {
         when /'out-dir=' (\S+) $/ {
             $odir = ~$0.IO.absolute;
             die "FATAL: Input arg out-dir='$odir' is NOT a directory." unless $odir.IO.d;
+            die "FATAL: Input arg out-dir='$odir' can NOT be the CWD" unless $odir ne $cdir;
         }
         when /'.pfb' $/ {
             $bnam = $_.IO.basename;
@@ -91,11 +96,13 @@ method run-program(@args) is export {
         note "  $_" for @f3.sort;
         note "Debug exit";
         exit;
-
     }
-
+ 
+    # both idir and odir must NOT be the same
     if $idir.defined {
         die "FATAL: Input arg in-dir='$idir' is NOT a directory." unless $idir.IO.d;
+        die "FATAL: Input in-dir='$idir' and out-dir can NOT be the same" unless $idir ne $odir;
+
         # collect files from the input directory
         my @fils = find :dir($idir), :type<file>, :recursive(True), :name(/'.' [pfb||otf||ttf] $/);
         # add them to the appropriate hash
@@ -128,20 +135,20 @@ method run-program(@args) is export {
     if %pfb.elems and $to-pfb {
         # handle the conversion
         if $to-otf {
-            @otf = convert-pfb %pfb.values, :$odir, :$to-otf, :$debug;
+            @otf = convert-pfb2ttf %pfb.values, :$odir, :$to-otf, :$debug;
         }
         else {
-            @ttf = convert-pfb %pfb.values, :$odir, :$debug;
+            @ttf = convert-pfb2ttf %pfb.values, :$odir, :$debug;
         }
     }
     if %ttf.elems {
         # handle the conversion
-        my @f = convert-ttf %ttf.values, :$odir, :$debug;
+        my @f = convert-ttf2pfb %ttf.values, :$odir, :$debug;
         @pfb.push: |@f;
     }
     if %otf.elems {
         # handle the conversion
-        my @f = convert-ttf %otf.values, :$odir, :$debug;
+        my @f = convert-ttf2pfb %otf.values, :$odir, :$debug;
         @pfb.push: |@f;
     }
 
@@ -158,15 +165,15 @@ method run-program(@args) is export {
     @ofils.sort;
 }
 
-sub convert-pfb(@fonts, :$odir!, :$to-otf = 0, :$debug --> List) {
+sub convert-pfb2ttf(@fonts, :$odir!, :$to-otf = 0, :$debug --> List) is export(:test) {
     note "NOTE: this dir is: '{$odir.IO.absolute}'" if $debug;
     # use ttf-convert (a Python program)
-    # to create a .ttf file from a .pfb file
-    my $eloc1 = %?RESOURCES<bin/ttf-converter>.IO.absolute;
-    my $eloc2 = "bin/ttf-converter".IO.absolute;
-    my $efil  = $eloc1.IO.r ?? $eloc1 
-                            !! $eloc2.IO.r ?? $eloc2 
-                                           !! die("FATAL: Unable to open 'ttf-converter'");
+    # to create a .ttf or .otf file from a .pfb file
+    my $eloc1 = %?RESOURCES<bin/ttf-converter>.IO // 0;
+    my $eloc2 = "resources/bin/ttf-converter".IO // 0;
+    my $efil  = $eloc1 ?? $eloc1 
+                       !! $eloc2.IO.r ?? $eloc2 
+                                      !! die("FATAL: Unable to open 'ttf-converter'");
     note "DEBUG: Using pfb conversion program '$efil'" if $debug;
     # execute with one or more files
     my $output-dir = "--output-dir $odir";
@@ -193,17 +200,17 @@ sub convert-pfb(@fonts, :$odir!, :$to-otf = 0, :$debug --> List) {
     @ofils
 }
 
-sub convert-ttf(@fonts, :$odir!, :$debug --> List) {
+sub convert-ttf2pfb(@fonts, :$odir!, :$debug --> List) is export(:test)  {
     note "NOTE: this dir is: '{$odir.IO.absolute}'" if $debug;
-    # use ttf2ufm to create a .pba file 
+    # use ttf2ufm to create a .pfb file 
     # from a .ttf or .otf file
     my $eprog = "ttf2ufm";
     note "DEBUG: Using ttf/otf pfb conversion program '$eprog'" if $debug;
     # each file has to be handled separately with two executions
 
-    # set $*OUT to a tempdir
+    # the only way to output a file into another directory is to
+    # specify it in the output file name (.i.e., use the complete path).
     my $tdir = tempdir;
-    $*OUT = $tdir;
     for @fonts -> $font {
         my $args1 = "--pfb -G u $font";
         my $exe1  = "$eprog $args1";
