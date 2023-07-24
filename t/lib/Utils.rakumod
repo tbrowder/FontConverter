@@ -1,6 +1,6 @@
-Utils;
+use File::Find;
 
-sub clean-stats(:%afm!, :%t1a!, :%pfb!, :%ttf!, :%otf!, :%pfa!)  is export{
+sub clean-stats(:%afm!, :%t1a!, :%pfb!, :%ttf!, :%otf!, :%pfa!)  is export {
     %afm = [];
     %t1a = [];
     %pfb = [];
@@ -14,7 +14,7 @@ sub clean-outdir($odir) is export {
     $_.unlink for @f;
 }
 
-sub dir-stats($dir, :%afm, :%t1a, :%pfb, :%ttf, :%otf, :%pfa) is export {
+sub dir-stats($dir, :%afm!, :%t1a!, :%pfb!, :%ttf!, :%otf!, :%pfa!) is export {
     # limit the search to one directory
     my @f  = find :$dir, :recursive(False), :type<file>;
     for @f {

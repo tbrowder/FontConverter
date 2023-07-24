@@ -5,6 +5,9 @@ use File::Temp;
 use Proc::Easier;
 use FontConverter :test;
 
+use lib <./t/lib>;
+use Utils;
+
 my $debug = 1;
 my $tdir;
 if $debug {
@@ -42,38 +45,6 @@ subtest {
 
 my (%afm, %t1a, %pfb, %ttf, %otf, %pfa);
 
-sub clean-stats {
-    %afm = [];
-    %t1a = [];
-    %pfb = [];
-    %ttf = [];
-    %otf = [];
-    %pfa = [];
-}
-
-sub clean-outdir {
-    my @f = find :dir($tdir), :type<file>; 
-    $_.unlink for @f
-}
-
-sub dir-stats($dir, :%afm, :%t1a, :%pfb, :%ttf, :%otf, :%pfa) {
-    # limit the search to one directory
-    my @f  = find :$dir, :recursive(False), :type<file>;
-    for @f {
-        my $bnam = $_.basename;
-        when /'.' afm $/ { %afm{$bnam} = $_ }
-        when /'.' t1a $/ { %t1a{$bnam} = $_ }
-        when /'.' pfb $/ { %pfb{$bnam} = $_ }
-        when /'.' ttf $/ { %ttf{$bnam} = $_ }
-        when /'.' otf $/ { %otf{$bnam} = $_ }
-        when /'.' pfa $/ { %pfa{$bnam} = $_ }
-        default {
-            die "FATAL: Unknown file type '$_'";
-        }
-    }
-    # get the total files found
-    %afm.elems + %t1a.elems + %pfb.elems + %ttf.elems + %otf.elems + %pfa.elems;
-}
 
 
 my ($exe, $args, $res, $pfb, @f, @fo);
@@ -86,19 +57,19 @@ lives-ok {
 
 # testing one input pfb file
 subtest {
-    clean-outdir;
-    clean-stats;
+    clean-outdir($tdir);
+    clean-stats(:%afm, :%t1a, :%pfb, :%ttf, :%otf, :%pfa);
     my @in = "t/fonts/CMBSY10.pfb";
     @f     = convert-pfb2ttf @in, :odir("t/out");
     cmp-ok @f.head, '~~', /'.ttf'$/, "got the head .ttf (should be only one)";
-    # analyze the output 
-    my $nf = dir-stats($tdir, :%afm, :%t1a, :%pfb, :%ttf, :%otf);
+    # analyze the output
+    my $nf = dir-stats($tdir, :%afm, :%t1a, :%pfb, :%ttf, :%otf, :%pfa);
     is %ttf.elems, 1, "should be only one .ttf";
     is $nf, 1, "should be only one output file";
 }, "execute, one pfb in, one ttf expected";
 
-clean-outdir;
-clean-stats;
+clean-outdir($tdir);
+clean-stats(:%afm, :%t1a, :%pfb, :%ttf, :%otf, :%pfa);
 
 done-testing;
 =finish
@@ -116,9 +87,9 @@ lives-ok {
     $args = "$exe in-dir=t/fonts out-dir=$tdir";
     $res  = cmd $args;
 }, "input (pfb, ttf, otf): $tpfb, $tttf, $totf";
-# analyze the output 
+# analyze the output
 # stats from output
-dir-stats($tdir, :%afm, :%t1a, :%pfb, :%ttf, :%otf);
+dir-stats($tdir, :%afm, :%t1a, :%pfb, :%ttf, :%otf, :%pfa);
 # expecting ?
 is %ttf.elems, 6;
 is %pfb.elems, 4;
