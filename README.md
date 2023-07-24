@@ -16,29 +16,34 @@ fc-convert-font Times-Roman.pfb # OUTPUT: «Times-Roman.ttf␤»
 DESCRIPTION
 ===========
 
-**FontConverter** provides tools to convert PostScript Type 1 binary font files to TrueType as well as conversion from TrueType or OpenType to PostScript Type 1. It requires the following system programs to be installed:
+**FontConverter** provides tools to convert PostScript Type 1 binary font files to TrueType or OpenType as well as conversion from TrueType or OpenType to PostScript Type 1. It requires the following system programs to be installed:
 
   * fontforge (and its Python3 components, if any)
 
-    To convert PostScript Type 1 to TrueType (X.pfb to X.ttf).
+    To convert PostScript Type 1 to TrueType (X.pfb to X.ttf or X.otf).
 
 Note the conversion from PostScript to True- or OpenType requires a Python3 script because `fontforge`'s own scripting language is broken (see its issue #5261 at [https://github.com/fontforge/fontforge](https://github.com/fontforge/fontforge)). We are fortunate to have found and been able to incorporate such a ready-made program at [https://antlarr-suse](https://antlarr-suse), and we are indebted to its author, Antonio Larrosa (who also happens to be a contributor to the **SUSE** Linux distribution).
 
   * ttf2ufm
 
-    To convert TrueType or OpenType to PostScript Type 1 (X.ttf or X.otf to X.pfb, X.pfa, and X.afm).
+    To convert TrueType or OpenType to PostScript Type 1 (X.ttf or X.otf to X.pfb, X.pfa [same as X.t1a] , and X.afm).
 
 Other font-related system programs:
 
-  * pfbtopfa - converts .pfb to .pfa 
-
   * pdffonts - information on fonts in a PDF document
-
-  * pf2afm - produces an AFM file from a PostScript font
 
   * printafm - shows metrics from a PostScript font
 
   * showttf - provides details of a TrueType or OpenType font
+
+Cautions and limitations
+========================
+
+Font file names may not always be named exactly after the actual font being described internally and, consequently, the resulting filename may not bear any semblance to the input filename. If there is any doubt, use one of the system tools (`showttf` or `printafm`) to investigate further. 
+
+Eventually this module will be able to notify you of any difficulties, but, until then, it should not let you convert files **into** the users's current directory; instead, you must always enter the `to-dir=D` option to name the output directory (which must exist and cannot be the same as the input directory). 
+
+It is also recommended that the output directory be empty before starting font conversions.
 
 Motivation
 ==========
@@ -46,7 +51,7 @@ Motivation
 Convert Type 1 to TrueType 
 ---------------------------
 
-The author has been creating Raku modules to convert his old (but cool) PostScript-generating programs (whose products were then converted to PDF with Ghostscript's 'ps2pdf') to direct PDF-generation using David Warring's Raku PDF modules. In the process, he wanted to convert old PostScript Type 1 fonts he bought for special projects to TrueType. Hence this module, which brings together the necessary tools into an easy-to-use, double-duty module and encourages use of Unicode in multi-language printed products.
+The author has been creating Raku modules to convert his old (but cool) PostScript-generating programs to direct PDF-generation using David Warring's Raku PDF modules. In the process, he wanted to convert old PostScript Type 1 fonts he bought for special projects to TrueType. Hence this module, which brings together the necessary tools into an easy-to-use, double-duty module and encourages use of Unicode in multi-language printed products.
 
 Convert TrueType or OpenType to Type 1 
 ---------------------------------------
