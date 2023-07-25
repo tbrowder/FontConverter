@@ -14,9 +14,6 @@ submethod TWEAK {
 method run-program(@args) {
     my $show   = 0; # an undocumented debug option
     my $debug  = 0;
-    my $to-otf = 0;
-    my $to-pfb = 1;
-    my $itype  = 'pfb';
     my %pfb;
     my %ttf;
     my %otf;
@@ -31,17 +28,6 @@ method run-program(@args) {
     # collect any fonts in args
     for @args {
         my $bnam;
-        when /'to-otf'/ {
-            ++$to-otf;
-        }
-        =begin comment
-        when /'in-type=' (\S+) $/ {
-            $itype = ~$0;
-            unless $itype ~~ /:i [pfb||ttf||otf] $/ {
-                die "FATAL: Input arg in-type='$itype' is NOT a known type.";
-            }
-        }
-        =end comment
         when /'in-dir=' (\S+) $/ {
             $idir = ~$0.IO.absolute;
             die "FATAL: Input arg in-dir='$idir' is NOT a directory." unless $idir.IO.d;
@@ -98,13 +84,13 @@ method run-program(@args) {
         exit;
     }
  
-    # both idir and odir must NOT be the same
+    # idir and odir must NOT be the same
     if $idir.defined {
         die "FATAL: Input arg in-dir='$idir' is NOT a directory." unless $idir.IO.d;
         die "FATAL: Input in-dir='$idir' and out-dir can NOT be the same" unless $idir ne $odir;
 
         # collect files from the input directory
-        my @fils = find :dir($idir), :type<file>, :recursive(True), :name(/'.' [pfb||otf||ttf] $/);
+        my @fils = find :dir($idir), :type<file>, :recursive(False), :name(/'.' [pfb||otf||ttf] $/);
         # add them to the appropriate hash
         for @fils {
             my $bnam;
@@ -132,14 +118,9 @@ method run-program(@args) {
 
     # Finally, do the conversions
     my (@ttf, @pfb, @otf);
-    if %pfb.elems and $to-pfb {
+    if %pfb.elems {
         # handle the conversion
-        if $to-otf {
-            @otf = convert-pfb2ttf %pfb.values, :$odir, :$to-otf, :$debug;
-        }
-        else {
-            @ttf = convert-pfb2ttf %pfb.values, :$odir, :$debug;
-        }
+        @ttf = convert-pfb2ttf %pfb.values, :$odir, :$debug;
     }
     if %ttf.elems {
         # handle the conversion
@@ -162,13 +143,13 @@ method run-program(@args) {
     if @otf {
         @ofils.push: |@otf;
     }
-    @ofils.sort;
+    @ofils .= sort;
 }
 
-sub convert-pfb2ttf(@fonts, :$odir!, :$to-otf = 0, :$debug --> List) is export(:test) {
+sub convert-pfb2ttf(@fonts, :$odir!, :$debug --> List) is export(:test) {
     note "NOTE: this dir is: '{$odir.IO.absolute}'" if $debug;
     # use ttf-convert (a Python program)
-    # to create a .ttf or .otf file from a .pfb file
+    # to create a .ttf file from a .pfb file
     my $eloc1 = %?RESOURCES<bin/ttf-converter>.IO // 0;
     my $eloc2 = "resources/bin/ttf-converter".IO // 0;
     my $efil  = $eloc1 ?? $eloc1 
@@ -178,18 +159,19 @@ sub convert-pfb2ttf(@fonts, :$odir!, :$to-otf = 0, :$debug --> List) is export(:
     # execute with one or more files
     my $output-dir = "--output-dir $odir";
     my @ofils;
-    if not $to-otf {
+    if 1 { #not $to-otf {
         my $args = $output-dir ~ " " ~ @fonts.join(" ");
         my $exe  = "$efil $args";
         my $res  = cmd $exe;
-        @ofils = find :dir($odir), :type<file>, :name(/'.ttf'$/);
+        @ofils = find :dir($odir), :type<file>, :name(/'.ttf' $/);
     }
     else {
-        # must do it the hard way for mow: one exe per file
-        for @fonts -> $font {
-            my $fnam = $font.IO.basename;
-            $fnam ~~ s/.pfb$/.otf/;
-            my $args = "$output-dir $font $fnam";
+        die "FATAL: Unable to convert .otf to .pfb";
+        # must do it the hard way for now: one exe per file
+        for @fonts -> $fpath {
+            my $fnam = $fpath.IO.basename;
+            $fnam ~~ s/'.pfb' $/.otf/;
+            my $args = "$output-dir $fpath $fnam";
             my $exe  = "$efil $args";
             my $res  = cmd $exe;
             my $ofil = "$odir/$fnam";
@@ -197,12 +179,12 @@ sub convert-pfb2ttf(@fonts, :$odir!, :$to-otf = 0, :$debug --> List) is export(:
         }
 
     }
-    @ofils
+    @ofils .= sort
 }
 
 sub convert-ttf2pfb(@fonts, :$odir!, :$debug --> List) is export(:test)  {
     note "NOTE: this dir is: '{$odir.IO.absolute}'" if $debug;
-    # use ttf2ufm to create a .pfb file 
+    # use ttf2ufm to create .pfb, .pfm, .t1a, and .afm files 
     # from a .ttf or .otf file
     my $eprog = "ttf2ufm";
     note "DEBUG: Using ttf/otf pfb conversion program '$eprog'" if $debug;
@@ -210,40 +192,65 @@ sub convert-ttf2pfb(@fonts, :$odir!, :$debug --> List) is export(:test)  {
 
     # the only way to output a file into another directory is to
     # specify it in the output file name (.i.e., use the complete path).
-    my $tdir = tempdir;
+
+    # until happy with output, use another dir
+    my $tdir = "$odir/out2";
+    mkdir $tdir;
+
+=begin comment
+    $bnam = $ttf.IO.basename;
+    $bnam ~~ s/'.ttf' $//;
+    $args = "$ttf $odir/$bnam";
+    $res  = cmd "$exe -b -G u $args";
+    $res  = cmd "$exe -e -G u $args";
+    my $pfa = "out/$bnam.pfa";
+    my $tia = "out/$bnam.t1a";
+    copy $pfa, $tia;
+=end comment
+
     for @fonts -> $font {
-        my $args1 = "--pfb -G u $font";
-        my $exe1  = "$eprog $args1";
-        my $res1  = cmd $exe1;
-        my $args2 = "-G u $font";
-        my $exe2  = "$eprog $args2";
-        my $res2  = cmd $exe2;
-    }
-    # copy to outdir?
-    my @f  = find :dir($tdir), :type<file>;
-    my %f;
-    for @f -> $f {
-        my $bnam = $f.basename;
-        %f{$bnam} = $f;
+        my $bnam = $font.IO.basename;
+        $bnam ~~ s/'.' [t|o] tf $//;
+
+        my $args = "$font $tdir/$bnam";
+        my $res1 = cmd "$eprog -b -G u $args";
+        my $res2 = cmd "$eprog -e -G u $args";
+        my $pfa  = "$tdir/$bnam.pfa";
+        my $tia  = "$tdir/$bnam.t1a";
+        copy $pfa, $tia;
     }
 
-    my @f2 = find :dir($tdir), :type<file>;
-    my %f2;
-    for @f2 -> $f {
-        my $bnam = $f.basename;
-        %f2{$bnam} = $f;
+    # copy to outdir
+
+    # collect the tdir paths
+    my @tf  = find :dir($tdir), :type<file>, :recursive(False);
+    my %tf;
+    for @tf -> $fpath {
+        my $bnam = $fpath.IO.basename;
+        %tf{$bnam} = $fpath;
     }
+
+    # collect the odir paths
+    my @of = find :dir($odir), :type<file>, :recursive(False);
+    my %of;
+    for @of -> $fpath {
+        my $bnam = $fpath.IO.basename;
+        %of{$bnam} = $fpath;
+    }
+
+    # merge into $odir
     my @olist;
-    for %f.keys -> $f {
-        if %f2{$f}:exists {
-            note "NOTE: generated file '$2' also found in dir '$odir'";
+    for %tf.kv -> $fbnam, $fpath {
+        if %of{$fbnam}:exists {
+            note "NOTE: generated file '$fbnam' also found in dir '$odir'";
+            @olist.push: %of{$fbnam}.IO;
         }
         else {
-            copy %f{$f}, $odir;
-            @olist.push: @olist;
+            copy %tf{$fbnam}, "$odir/$fbnam";
+            unlink %tf{$fbnam};
+            @olist.push: "$odir/$fbnam".IO;
         }
     }
-    @olist
+    @olist .= sort
 }
-
 

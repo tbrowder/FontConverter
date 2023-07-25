@@ -54,9 +54,9 @@ for @ttf -> $ttf {
     $args = "$ttf $odir/$bnam";
     $res  = cmd "$exe -b -G u $args";
     $res  = cmd "$exe -e -G u $args";
-    my $pfa = "out/$bnam.pfa";
-    my $tia = "out/$bnam.t1a";
-    copy $pfa, $tia;
+    my $pfa = "$odir/$bnam.pfa";
+    my $tia = "$odir/$bnam.t1a";
+    copy $pfa, $tia; # copy $path-from, $path-to
 }
 for @otf -> $otf {
     $bnam = $otf.IO.basename;
@@ -64,9 +64,9 @@ for @otf -> $otf {
     $args = "$otf $odir/$bnam";
     $res  = cmd "$exe -b -G u $args";
     $res  = cmd "$exe -e -G u $args";
-    my $pfa = "out/$bnam.pfa";
-    my $tia = "out/$bnam.t1a";
-    copy $pfa, $tia;
+    my $pfa = "$odir/$bnam.pfa";
+    my $tia = "$odir/$bnam.t1a";
+    copy $pfa, $tia; # copy $path-from, $path-to
 }
 if $clean {
     my @rm;

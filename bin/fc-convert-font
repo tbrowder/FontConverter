@@ -10,17 +10,15 @@ if not @*ARGS.elems {
     Converts fonts between PostScript and TrueType or OpenType formats:
 
       X.pfb => X.ttf
-      X.ttf => X.t1a and X.afm
-      X.otf => X.t1a and X.afm
+      X.ttf => X.pfb, X.pfa, X.t1a, and X.afm
+      X.otf => X.pfb, X.pfa, X.t1a, and X.afm
 
     Options:
-      in-type=T - Where T is one of 'pfb', 'ttf' (or 'otf')
-                  (default: 'pfb').
-
       in-dir=D  - Where D is a directory to search for font files.
+                    (default: '.'). 
 
       out-dir=D - Where D is a directory to put output products
-                    (default: '.'). 
+                    (mandatory, cannot be the same as 'in-dir').
 
     Note: On input the user may list font files to be converted and also 
     name an input directory to be searched.  If any font basenames are 
