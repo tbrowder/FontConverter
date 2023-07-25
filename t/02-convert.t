@@ -8,7 +8,7 @@ use FontConverter :test;
 use lib <./t/lib>;
 use Utils;
 
-my $debug = 1;
+my $debug = 0;
 my $tdir;
 if $debug {
     $tdir = "t/out";
@@ -58,7 +58,7 @@ subtest {
     clean-stats(:%afm, :%t1a, :%pfb, :%ttf, :%otf, :%pfa);
 
     my @in = "t/fonts/CMBSY10.pfb";
-    @f     = convert-pfb2ttf @in, :odir("t/out");
+    @f     = convert-pfb2ttf @in, :odir($tdir);
     cmp-ok @f.head, '~~', /'.ttf'$/, "got the head .ttf (should be only one)";
     # analyze the output
     my $nf = dir-stats($tdir, :%afm, :%t1a, :%pfb, :%ttf, :%otf, :%pfa);
