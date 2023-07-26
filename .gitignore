@@ -1,3 +1,4 @@
 .precomp/
 /FontConverter-*
 dev/out/
+t/out/
