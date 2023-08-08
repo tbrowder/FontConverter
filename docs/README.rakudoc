@@ -19,10 +19,12 @@ OpenType to PostScript Type 1. It requires the following system
 programs to be installed:
 
 =begin item
-fontforge (and its Python3 components, if any)
+C<fontforge> (and its Python3 components, if any)
 
 To convert PostScript Type 1 to TrueType
 (X.pfb to X.ttf).
+
+On a Debian system install packages C<> and C<>.
 =end item
 
 Note the conversion from PostScript to TrueType requires a Python3
@@ -37,10 +39,12 @@ Note it looks like there is a conversion path from '.pfb' to '.otf',
 but that will require some more research and Python3 expertise.
 
 =begin item
-ttf2ufm
+C<ttf2ufm>
 
 To convert TrueType or OpenType to PostScript Type 1
 (X.ttf or X.otf to X.pfb, X.pfa [same as X.t1a], X.t1a, and X.afm).
+
+(On a Debian system install package C<ttf2utm>.)
 =end item
 
 Other font-related system programs:
@@ -66,6 +70,12 @@ It is also recommended that the output directory be empty before starting font
 conversions.
 
 =head1 Motivation
+
+B<UPDATE:> The motivation is somewhat missguided because module C<Font::AFM> and
+C<Font::FreeType> together provide metrics for the font types of interest. The
+author's personal problem was being unable to find '.pfb' versions to provide the '.afm'
+files for C<Font::AFM> use. However, that is no longer true because the missing '.pfb'
+files have been found.
 
 =head2 Convert PostScript Type 1 to TrueType 
 

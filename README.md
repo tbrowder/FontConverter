@@ -18,17 +18,21 @@ DESCRIPTION
 
 **FontConverter** provides tools to convert PostScript Type 1 binary font files to TrueType as well as conversion from TrueType or OpenType to PostScript Type 1. It requires the following system programs to be installed:
 
-  * fontforge (and its Python3 components, if any)
+  * `fontforge` (and its Python3 components, if any)
 
     To convert PostScript Type 1 to TrueType (X.pfb to X.ttf).
+
+    On a Debian system install packages `` and ``.
 
 Note the conversion from PostScript to TrueType requires a Python3 script because `fontforge`'s own scripting language is broken (see its issue #5261 at [https://github.com/fontforge/fontforge](https://github.com/fontforge/fontforge)). We are fortunate to have found and been able to incorporate such a ready-made program at [https://antlarr-suse](https://antlarr-suse), and we are indebted to its author, Antonio Larrosa (who also happens to be a contributor to the **SUSE** Linux distribution).
 
 Note it looks like there is a conversion path from '.pfb' to '.otf', but that will require some more research and Python3 expertise.
 
-  * ttf2ufm
+  * `ttf2ufm`
 
     To convert TrueType or OpenType to PostScript Type 1 (X.ttf or X.otf to X.pfb, X.pfa [same as X.t1a], X.t1a, and X.afm).
+
+    (On a Debian system install package `ttf2utm`.)
 
 Other font-related system programs:
 
@@ -49,6 +53,8 @@ It is also recommended that the output directory be empty before starting font c
 
 Motivation
 ==========
+
+**UPDATE:** The motivation is somewhat missguided because module `Font::AFM` and `Font::FreeType` together provide metrics for the font types of interest. The author's personal problem was being unable to find '.pfb' versions to provide the '.afm' files for `Font::AFM` use. However, that is no longer true because the missing '.pfb' files have been found.
 
 Convert PostScript Type 1 to TrueType 
 --------------------------------------
